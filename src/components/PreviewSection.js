@@ -2,40 +2,48 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react"
 
-const PreviewSection = () => {
-  const [fontFamily, setFontFamily] = useState("");
+const PreviewSection = ({ fonts }) => {
+  const [fontFamilies, setFontFamilies] = useState({});
 
-  // Simulate receiving font data from FontSelector
-  const fontUrl = "https://example.com/font.ttf"; // Replace with actual state
-  const uploadedFont = null; // Replace with actual state
-  const selectedElements = ["h1", "p"]; // Replace with actual state
+  // Function to load a font dynamically
+  const loadFont = (source, fontFamilyName) => {
+    const fontFace = new FontFace(fontFamilyName, `url(${source})`);
+    document.fonts.add(fontFace);
 
-  useEffect(() => {
-    if (fontUrl) {
-      const fontFace = new FontFace("CustomFont", `url(${fontUrl})`);
-      document.fonts.add(fontFace);
-      fontFace.load().then(() => {
-        setFontFamily("CustomFont");
-      });
-    } else if (uploadedFont) {
-      const objectURL = URL.createObjectURL(uploadedFont);
-      const fontFace = new FontFace("CustomFont", `url(${objectURL})`);
-      document.fonts.add(fontFace);
-      fontFace.load().then(() => {
-        setFontFamily("CustomFont");
-      });
-    }
-  }, [fontUrl, uploadedFont]);
+    return fontFace.load().then(() => {
+      setFontFamilies((prev) => ({ ...prev, [fontFamilyName]: fontFamilyName }));
+    });
+  };
 
   useEffect(() => {
-    if (fontFamily) {
-      selectedElements.forEach((element) => {
-        document.querySelectorAll(element).forEach((el) => {
-          el.style.fontFamily = fontFamily;
+    fonts.forEach((font, index) => {
+      if (font.url) {
+        // Load font from URL
+        loadFont(font.url, `CustomFont${index + 1}`);
+      } else if (font.file) {
+        // Load font from uploaded file
+        const objectURL = URL.createObjectURL(font.file);
+        loadFont(objectURL, `CustomFont${index + 1}`);
+
+        // Clean up the object URL when the component unmounts
+        return () => URL.revokeObjectURL(objectURL);
+      }
+    });
+  }, [fonts]);
+
+  useEffect(() => {
+    // Apply fonts to selected elements
+    fonts.forEach((font, index) => {
+      const fontFamilyName = `CustomFont${index + 1}`;
+      if (fontFamilies[fontFamilyName]) {
+        font.elements.forEach((element) => {
+          document.querySelectorAll(element).forEach((el) => {
+            el.style.fontFamily = fontFamilies[fontFamilyName];
+          });
         });
-      });
-    }
-  }, [fontFamily, selectedElements]);
+      }
+    });
+  }, [fontFamilies, fonts]);
 
   return (
     <motion.div
@@ -44,22 +52,44 @@ const PreviewSection = () => {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <h1 style={{ fontFamily }} className="text-4xl font-bold mb-4">
+      {/* Body Element */}
+      <div style={{ fontFamily: fontFamilies.CustomFont1 || "inherit" }}>
+        <p className="text-lg text-gray-700 mb-4">
+          Ceci est du texte dans le corps (body).
+        </p>
+      </div>
+
+      {/* H1 Element */}
+      <h1
+        style={{ fontFamily: fontFamilies.CustomFont2 || "inherit" }}
+        className="text-4xl font-bold mb-4"
+      >
         Titre H1 avec votre police
       </h1>
-      <h2 style={{ fontFamily }} className="text-3xl font-semibold mb-4">
+
+      {/* H2 Element */}
+      <h2
+        style={{ fontFamily: fontFamilies.CustomFont3 || "inherit" }}
+        className="text-3xl font-semibold mb-4"
+      >
         Titre H2 avec votre police
       </h2>
-      <p style={{ fontFamily }} className="text-lg text-gray-700 mb-4">
-        Ceci est un paragraphe avec votre police. Vous pouvez tester ici comment
-        elle s'affiche sur du texte long.
-      </p>
-      <button
-        style={{ fontFamily }}
-        className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600"
+
+      {/* Paragraph Element */}
+      <p
+        style={{ fontFamily: fontFamilies.CustomFont1 || "inherit" }}
+        className="text-lg text-gray-700 mb-4"
       >
-        Bouton avec votre police
-      </button>
+        Ceci est un paragraphe avec votre police.
+      </p>
+
+      {/* Span Element */}
+      <span
+        style={{ fontFamily: fontFamilies.CustomFont2 || "inherit" }}
+        className="text-blue-500 font-semibold"
+      >
+        Texte dans une balise span.
+      </span>
     </motion.div>
   );
 };

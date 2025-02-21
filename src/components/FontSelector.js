@@ -4,34 +4,28 @@ import { Input } from "@/components/ui/input"
 import { Label} from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
-
-const FontSelector = () => {
-  const [fontUrl, setFontUrl] = useState("");
-  const [uploadedFont, setUploadedFont] = useState(null);
-  const [selectedElements, setSelectedElements] = useState(["h1", "p"]);
-
+const FontSelector = ({
+  font,
+  onFontChange,
+  onElementToggle,
+}) => {
   const handleFontUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setUploadedFont(e.target.files[0]);
+      onFontChange("file", e.target.files[0]);
     }
   };
 
-  const handleElementToggle = (element) => {
-    setSelectedElements((prev) =>
-      prev.includes(element) ? prev.filter((el) => el !== element) : [...prev, element]
-    );
-  };
-
   return (
-    <div>
+    <div className="mb-6">
+      <h3 className="text-sm font-medium mb-2">Police {font.id}</h3>
       {/* Option 1: Add URL */}
       <div className="mb-4">
-        <Label htmlFor="font-url">Lien de la police</Label>
+        <Label htmlFor={`font-url-${font.id}`}>Lien de la police</Label>
         <Input
-          id="font-url"
+          id={`font-url-${font.id}`}
           placeholder="https://example.com/font.ttf"
-          value={fontUrl}
-          onChange={(e) => setFontUrl(e.target.value)}
+          value={font.url}
+          onChange={(e) => onFontChange("url", e.target.value)}
         />
       </div>
 
@@ -49,38 +43,49 @@ const FontSelector = () => {
       {/* Select Elements */}
       <div className="space-y-2">
         <h3 className="text-sm font-medium">Appliquer à :</h3>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <label>
             <input
               type="checkbox"
-              checked={selectedElements.includes("h1")}
-              onChange={() => handleElementToggle("h1")}
+              checked={font.elements.includes("body")}
+              onChange={() => onElementToggle("body")}
+            />
+            Tout le corps (body)
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={font.elements.includes("h1")}
+              onChange={() => onElementToggle("h1")}
             />
             H1
           </label>
           <label>
             <input
               type="checkbox"
-              checked={selectedElements.includes("h2")}
-              onChange={() => handleElementToggle("h2")}
+              checked={font.elements.includes("h2")}
+              onChange={() => onElementToggle("h2")}
             />
             H2
           </label>
           <label>
             <input
               type="checkbox"
-              checked={selectedElements.includes("p")}
-              onChange={() => handleElementToggle("p")}
+              checked={font.elements.includes("p")}
+              onChange={() => onElementToggle("p")}
             />
             Paragraphes
           </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={font.elements.includes("span")}
+              onChange={() => onElementToggle("span")}
+            />
+            Span
+          </label>
         </div>
       </div>
-
-      {/* Apply Font Button */}
-      <Button variant="default" size="lg" className="mt-4 w-full">
-        Appliquer la police
-      </Button>
     </div>
   );
 };
