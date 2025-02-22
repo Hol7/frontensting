@@ -19,7 +19,7 @@ const FontSelector = ({
     <div className="mb-6">
       <h3 className="text-sm font-medium mb-2">Police {font.id}</h3>
       {/* Option 1: Add URL */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <Label htmlFor={`font-url-${font.id}`}>Lien de la police</Label>
         <Input
           id={`font-url-${font.id}`}
@@ -27,7 +27,7 @@ const FontSelector = ({
           value={font.url}
           onChange={(e) => onFontChange("url", e.target.value)}
         />
-      </div>
+      </div> */}
 
       {/* Option 2: Upload File */}
       <div className="mb-4">
